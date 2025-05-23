@@ -48,6 +48,16 @@ public class CcpInfoAppService {
     }
 
     /**
+     * 根据序列号获取中央计算平台信息
+     *
+     * @param sn 序列号
+     * @return 中央计算平台信息
+     */
+    public CcpPo getBySn(String sn) {
+        return ccpDao.selectBySn(sn);
+    }
+
+    /**
      * 记录中央计算平台信息变更日志
      *
      * @param ccpPo  中央计算平台对象

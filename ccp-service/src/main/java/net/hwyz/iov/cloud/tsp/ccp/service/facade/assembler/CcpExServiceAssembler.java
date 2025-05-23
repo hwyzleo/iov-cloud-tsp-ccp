@@ -28,6 +28,15 @@ public interface CcpExServiceAssembler {
     CcpPo toPo(CcpExService ccpExService);
 
     /**
+     * 数据对象转数据传输对象
+     *
+     * @param ccpPo 数据对象
+     * @return 数据传输对象
+     */
+    @Mappings({})
+    CcpExService fromPo(CcpPo ccpPo);
+
+    /**
      * 数据对象列表转数据传输对象列表
      *
      * @param ccpExServiceList 数据传输对象列表
