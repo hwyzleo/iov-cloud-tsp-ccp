@@ -25,9 +25,9 @@ public class CcpInfoServiceController {
     private final CcpInfoAppService ccpInfoAppService;
 
     /**
-     * 批量导入车联终端数据
+     * 批量导入中央计算平台数据
      *
-     * @param request 批量导入车联终端请求
+     * @param request 批量导入中央计算平台请求
      */
     @PostMapping("/batchImport")
     public void batchImport(@RequestBody @Validated BatchImportCcpRequest request) {
