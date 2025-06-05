@@ -1,7 +1,10 @@
 package net.hwyz.iov.cloud.tsp.ccp.service.application.service;
 
+import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
+import net.hwyz.iov.cloud.tsp.ccp.service.infrastructure.exception.VehicleHasBindCcpException;
 import net.hwyz.iov.cloud.tsp.ccp.service.infrastructure.repository.dao.VehicleCcpDao;
 import net.hwyz.iov.cloud.tsp.ccp.service.infrastructure.repository.dao.VehicleCcpLogDao;
 import net.hwyz.iov.cloud.tsp.ccp.service.infrastructure.repository.po.VehicleCcpLogPo;
@@ -32,6 +35,39 @@ public class VehicleCcpAppService {
     public VehicleCcpPo get(String vin, String sn) {
         List<VehicleCcpPo> vehicleCcpPoList = vehicleCcpDao.selectPoByExample(VehicleCcpPo.builder().vin(vin).sn(sn).build());
         return vehicleCcpPoList.isEmpty() ? null : vehicleCcpPoList.get(0);
+    }
+
+    /**
+     * 车辆绑定中央计算平台
+     *
+     * @param vin 车架号
+     * @param sn  序列号
+     */
+    public void bind(String vin, String sn) {
+        List<VehicleCcpPo> vehicleCcpPoList = vehicleCcpDao.selectPoByExample(VehicleCcpPo.builder().vin(vin).build());
+        VehicleCcpPo vehicleCcpPo;
+        if (vehicleCcpPoList.isEmpty()) {
+            vehicleCcpPo = VehicleCcpPo.builder()
+                    .vin(vin)
+                    .build();
+        } else {
+            vehicleCcpPo = vehicleCcpPoList.get(0);
+        }
+        if (StrUtil.isNotBlank(vehicleCcpPo.getSn())) {
+            if (!vehicleCcpPo.getSn().equalsIgnoreCase(sn)) {
+                throw new VehicleHasBindCcpException(vin, vehicleCcpPo.getSn(), sn);
+            } else {
+                logger.warn("车辆[{}]在[{}]已绑定过中央计算平台[{}]", vin, vehicleCcpPo.getCreateTime().getTime(), sn);
+                return;
+            }
+        }
+        vehicleCcpPo.setSn(sn);
+        if (ObjUtil.isNull(vehicleCcpPo.getId())) {
+            vehicleCcpDao.insertPo(vehicleCcpPo);
+        } else {
+            vehicleCcpDao.updatePo(vehicleCcpPo);
+        }
+        recordLog(vehicleCcpPo, "车辆绑定中央计算平台");
     }
 
     /**
